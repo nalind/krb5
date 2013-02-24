@@ -290,6 +290,11 @@ krb5_ldap_check_allowed_to_delegate(krb5_context context,
                                     const krb5_db_entry *server,
                                     krb5_const_principal proxy);
 
+krb5_boolean
+krb5_ldap_check_pkinit_binding(krb5_context context, krb5_kdc_req *request,
+                               const krb5_db_entry *client,
+                               krb5_data *client_der);
+
 /* DAL functions */
 
 
