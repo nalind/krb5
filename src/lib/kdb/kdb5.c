@@ -2569,3 +2569,19 @@ krb5_db_check_allowed_to_delegate(krb5_context kcontext,
         return KRB5_PLUGIN_OP_NOTSUPP;
     return v->check_allowed_to_delegate(kcontext, client, server, proxy);
 }
+
+krb5_boolean
+krb5_db_check_pkinit_binding(krb5_context kcontext, krb5_kdc_req *request,
+                             const krb5_db_entry *client,
+                             krb5_data *client_der)
+{
+    krb5_error_code ret;
+    kdb_vftabl *v;
+
+    ret = get_vftabl(kcontext, &v);
+    if (ret)
+        return FALSE;
+    if (v->check_pkinit_binding == NULL)
+        return FALSE;
+    return v->check_pkinit_binding(kcontext, request, client, client_der);
+}

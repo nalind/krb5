@@ -682,6 +682,11 @@ krb5_error_code krb5_db_check_allowed_to_delegate(krb5_context kcontext,
                                                   const krb5_db_entry *server,
                                                   krb5_const_principal proxy);
 
+krb5_boolean krb5_db_check_pkinit_binding(krb5_context kcontext,
+                                          krb5_kdc_req *request,
+                                          const krb5_db_entry *client,
+                                          krb5_data *client_der);
+
 /* default functions. Should not be directly called */
 /*
  *   Default functions prototype
@@ -817,7 +822,7 @@ krb5_dbe_free_string(krb5_context, char *);
  * This number indicates the date of the last incompatible change to the DAL.
  * The maj_ver field of the module's vtable structure must match this version.
  */
-#define KRB5_KDB_DAL_MAJOR_VERSION 4
+#define KRB5_KDB_DAL_MAJOR_VERSION 5
 
 /*
  * A krb5_context can hold one database object.  Modules should use
@@ -1339,6 +1344,18 @@ typedef struct _kdb_vftabl {
                                                  krb5_const_principal client,
                                                  const krb5_db_entry *server,
                                                  krb5_const_principal proxy);
+
+    /*
+     * Optional: Check if the certificate identitifies the client named in the
+     * request.  If the method is not implemented, the caller proceeds as
+     * though it returned FALSE, and the KDC will check for the client's
+     * principal name in the certificate's subjectAltName extension, if it has
+     * one.
+     */
+    krb5_boolean (*check_pkinit_binding)(krb5_context kcontext,
+                                         krb5_kdc_req *request,
+                                         const krb5_db_entry *client,
+                                         krb5_data *client_der);
 } kdb_vftabl;
 
 #endif /* !defined(_WIN32) */
