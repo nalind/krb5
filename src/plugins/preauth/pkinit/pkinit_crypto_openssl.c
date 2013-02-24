@@ -2189,6 +2189,36 @@ crypto_retrieve_cert_sans(krb5_context context,
 }
 
 krb5_error_code
+crypto_retrieve_cert_der(krb5_context context,
+                         pkinit_plg_crypto_context plgctx,
+                         pkinit_req_crypto_context reqctx,
+                         krb5_data *der)
+{
+    krb5_error_code retval = EINVAL;
+    unsigned char *p;
+    int length;
+
+    memset(der, 0, sizeof(*der));
+    if (reqctx->received_cert == NULL) {
+        pkiDebug("%s: No certificate!\n", __FUNCTION__);
+        return retval;
+    }
+
+    length = i2d_X509(reqctx->received_cert, NULL);
+    if (length < 0)
+        return retval;
+
+    p = malloc(length);
+    if (p == NULL)
+        return ENOMEM;
+    der->data = (char *) p;
+    der->length = length;
+    i2d_X509(reqctx->received_cert, &p);
+
+    return 0;
+}
+
+krb5_error_code
 crypto_check_cert_eku(krb5_context context,
                       pkinit_plg_crypto_context plgctx,
                       pkinit_req_crypto_context reqctx,

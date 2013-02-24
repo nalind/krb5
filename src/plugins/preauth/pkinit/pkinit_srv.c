@@ -30,6 +30,7 @@
  */
 
 #include <k5-int.h>
+#include <kdb.h>
 #include "pkinit.h"
 
 static krb5_error_code
@@ -292,12 +293,13 @@ pkinit_server_verify_padata(krb5_context context,
     pkinit_kdc_context plgctx = NULL;
     pkinit_kdc_req_context reqctx = NULL;
     krb5_checksum cksum = {0, 0, 0, NULL};
-    krb5_data *der_req = NULL;
+    krb5_data *der_req = NULL, client_cert;
     int valid_eku = 0, valid_san = 0;
     krb5_data k5data;
     int is_signed = 1;
     krb5_pa_data **e_data = NULL;
     krb5_kdcpreauth_modreq modreq = NULL;
+    krb5_db_entry *client_dbe;
 
     pkiDebug("pkinit_verify_padata: entered!\n");
     if (data == NULL || data->length <= 0 || data->contents == NULL) {
@@ -385,7 +387,6 @@ pkinit_server_verify_padata(krb5_context context,
         goto cleanup;
     }
     if (is_signed) {
-
         retval = verify_client_san(context, plgctx, reqctx, request->client,
                                    &valid_san);
         if (retval)
@@ -393,8 +394,22 @@ pkinit_server_verify_padata(krb5_context context,
         if (!valid_san) {
             pkiDebug("%s: did not find an acceptable SAN in user "
                      "certificate\n", __FUNCTION__);
-            retval = KRB5KDC_ERR_CLIENT_NAME_MISMATCH;
-            goto cleanup;
+            /* ask the kdb backend */
+            memset(&client_cert, 0, sizeof(client_cert));
+            client_dbe = (*(cb->client_entry))(context, rock);
+            if (crypto_retrieve_cert_der(context, plgctx->cryptoctx,
+                                         reqctx->cryptoctx,
+                                         &client_cert) == 0 &&
+                krb5_db_check_pkinit_binding(context, request,
+                                             client_dbe, &client_cert)) {
+                pkiDebug("krb5_db_check_pkinit_binding() succeeds\n");
+                krb5_free_data(context, &client_cert);
+            } else {
+                pkiDebug("krb5_db_check_pkinit_binding() failed\n");
+                krb5_free_data(context, &client_cert);
+                retval = KRB5KDC_ERR_CLIENT_NAME_MISMATCH;
+                goto cleanup;
+            }
         }
         retval = verify_client_eku(context, plgctx, reqctx, &valid_eku);
         if (retval)

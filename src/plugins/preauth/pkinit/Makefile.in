@@ -10,8 +10,9 @@ RELDIR=../plugins/preauth/pkinit
 # Depends on libk5crypto and libkrb5
 SHLIB_EXPDEPS = \
 	$(TOPLIBD)/libk5crypto$(SHLIBEXT) \
+	$(TOPLIBD)/libkdb5$(SHLIBEXT) \
 	$(TOPLIBD)/libkrb5$(SHLIBEXT)
-SHLIB_EXPLIBS= -lkrb5 -lcom_err -lk5crypto $(PKINIT_CRYPTO_IMPL_LIBS) $(DL_LIB) $(SUPPORT_LIB) $(LIBS)
+SHLIB_EXPLIBS= -lkdb5 -lkrb5 -lcom_err -lk5crypto $(PKINIT_CRYPTO_IMPL_LIBS) $(DL_LIB) $(SUPPORT_LIB) $(LIBS)
 DEFINES=-DPKINIT_DYNOBJEXT=\""$(PKINIT_DYNOBJEXT)"\"
 
 STLIBOBJS= \

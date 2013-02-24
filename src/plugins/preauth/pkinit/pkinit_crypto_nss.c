@@ -4515,6 +4515,29 @@ crypto_retrieve_signer_identity(krb5_context context,
     return 0;
 }
 
+krb5_error_code
+crypto_retrieve_cert_der(krb5_context context,
+                         pkinit_plg_crypto_context plgctx,
+                         pkinit_req_crypto_context reqctx,
+                         krb5_data *der)
+{
+    krb5_error_code retval = EINVAL;
+
+    memset(der, 0, sizeof(*der));
+    if (reqctx->peer_cert == NULL) {
+        pkiDebug("%s: No certificate!\n", __FUNCTION__);
+        return retval;
+    }
+
+    der->data = malloc(reqctx->peer_cert->derCert.len);
+    if (der->data == NULL)
+        return ENOMEM;
+    der->length = reqctx->peer_cert->derCert.len;
+    memcpy(der->data, reqctx->peer_cert->derCert.data, der->length);
+
+    return 0;
+}
+
 static krb5_error_code
 cert_retrieve_cert_sans(krb5_context context,
                         CERTCertificate *cert,

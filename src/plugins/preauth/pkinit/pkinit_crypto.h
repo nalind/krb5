@@ -241,6 +241,15 @@ krb5_error_code crypto_retrieve_signer_identity
 	const char **identity);				/* OUT */
 
 /*
+ * this function returns a copy of the DER-encoded
+ * received certificate.  it must be freed by the caller
+ */
+krb5_error_code
+crypto_retrieve_cert_der(krb5_context context,
+                         pkinit_plg_crypto_context plgctx,
+                         pkinit_req_crypto_context reqctx,
+                         krb5_data *der);
+/*
  * this function returns SAN information found in the
  * received certificate.  at least one of pkinit_sans,
  * upn_sans, or kdc_hostnames must be non-NULL.
