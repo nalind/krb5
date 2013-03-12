@@ -2023,7 +2023,7 @@ void krb5int_free_srv_dns_data(struct srv_dns_entry *);
 /* To keep happy libraries which are (for now) accessing internal stuff */
 
 /* Make sure to increment by one when changing the struct */
-#define KRB5INT_ACCESS_STRUCT_VERSION 21
+#define KRB5INT_ACCESS_STRUCT_VERSION 22
 
 typedef struct _krb5int_access {
     krb5_error_code (*auth_con_get_subkey_enctype)(krb5_context,
@@ -2118,7 +2118,15 @@ typedef struct _krb5int_access {
     (*decode_krb5_pa_pk_as_rep)(const krb5_data *, krb5_pa_pk_as_rep **);
 
     krb5_error_code
+    (*decode_krb5_pa_pk_as_rep_draft9)(const krb5_data *,
+                                       krb5_pa_pk_as_rep_draft9 **);
+
+    krb5_error_code
     (*decode_krb5_kdc_dh_key_info)(const krb5_data *, krb5_kdc_dh_key_info **);
+
+    krb5_error_code
+    (*decode_krb5_kdc_dh_key_info_draft9)(const krb5_data *,
+                                          krb5_kdc_dh_key_info_draft9 **);
 
     krb5_error_code
     (*decode_krb5_principal_name)(const krb5_data *, krb5_principal_data **);

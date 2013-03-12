@@ -248,6 +248,10 @@ krb5_error_code
 decode_krb5_pa_pk_as_rep(const krb5_data *, krb5_pa_pk_as_rep **);
 
 krb5_error_code
+decode_krb5_pa_pk_as_rep_draft9(const krb5_data *,
+                                krb5_pa_pk_as_rep_draft9 **);
+
+krb5_error_code
 decode_krb5_auth_pack(const krb5_data *, krb5_auth_pack **);
 
 krb5_error_code
@@ -255,6 +259,10 @@ decode_krb5_auth_pack_draft9(const krb5_data *, krb5_auth_pack_draft9 **);
 
 krb5_error_code
 decode_krb5_kdc_dh_key_info(const krb5_data *, krb5_kdc_dh_key_info **);
+
+krb5_error_code
+decode_krb5_kdc_dh_key_info_draft9(const krb5_data *,
+                                   krb5_kdc_dh_key_info_draft9 **);
 
 krb5_error_code
 decode_krb5_principal_name(const krb5_data *, krb5_principal_data **);

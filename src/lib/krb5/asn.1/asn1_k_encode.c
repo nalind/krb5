@@ -1604,7 +1604,7 @@ MAKE_CODEC(krb5_pa_pk_as_req, pa_pk_as_req);
 MAKE_ENCODER(encode_krb5_pa_pk_as_req_draft9, pa_pk_as_req_draft9);
 MAKE_DECODER(decode_krb5_pa_pk_as_req_draft9, pa_pk_as_req_draft9_decode);
 MAKE_CODEC(krb5_pa_pk_as_rep, pa_pk_as_rep);
-MAKE_ENCODER(encode_krb5_pa_pk_as_rep_draft9, pa_pk_as_rep_draft9);
+MAKE_CODEC(krb5_pa_pk_as_rep_draft9, pa_pk_as_rep_draft9);
 MAKE_CODEC(krb5_auth_pack, auth_pack);
 MAKE_CODEC(krb5_auth_pack_draft9, auth_pack_draft9);
 MAKE_CODEC(krb5_kdc_dh_key_info, kdc_dh_key_info);

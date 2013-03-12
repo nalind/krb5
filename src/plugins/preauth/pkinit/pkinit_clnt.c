@@ -717,24 +717,40 @@ pkinit_as_rep_parse(krb5_context context,
                      "/tmp/client_as_rep");
 #endif
 
-    if ((retval = k5int_decode_krb5_pa_pk_as_rep(as_rep, &kdc_reply))) {
-        pkiDebug("decode_krb5_as_rep failed %d\n", retval);
-        return retval;
+    if (pa_type == KRB5_PADATA_PK_AS_REP) {
+        if ((retval = k5int_decode_krb5_pa_pk_as_rep(as_rep, &kdc_reply))) {
+            pkiDebug("decode_krb5_as_rep failed %d\n", retval);
+            return retval;
+        }
+    } else
+    if (pa_type == KRB5_PADATA_PK_AS_REP_OLD) {
+        if ((retval = k5int_decode_krb5_pa_pk_as_rep_draft9(as_rep, &kdc_reply9))) {
+            pkiDebug("decode_krb5_as_rep_draft9 failed %d\n", retval);
+            return retval;
+        }
+    } else {
+        pkiDebug("unknown reply type %d\n", pa_type);
+        return -1;
     }
 
-    switch(kdc_reply->choice) {
-    case choice_pa_pk_as_rep_dhInfo:
+    if ((kdc_reply != NULL &&
+         kdc_reply->choice == choice_pa_pk_as_rep_dhInfo) ||
+        (kdc_reply9 != NULL &&
+         kdc_reply9->choice == choice_pa_pk_as_rep_draft9_dhSignedData)) {
         pkiDebug("as_rep: DH key transport algorithm\n");
+        if (kdc_reply != NULL)
+            signed_data = kdc_reply->u.dh_Info.dhSignedData;
+        else
+            signed_data = kdc_reply9->u.dhSignedData;
 #ifdef DEBUG_ASN1
-        print_buffer_bin(kdc_reply->u.dh_Info.dhSignedData.data,
-                         kdc_reply->u.dh_Info.dhSignedData.length, "/tmp/client_kdc_signeddata");
+        print_buffer_bin(signed_data.data,
+                         signed_data.length, "/tmp/client_kdc_signeddata");
 #endif
         if ((retval = cms_signeddata_verify(context, plgctx->cryptoctx,
                                             reqctx->cryptoctx, reqctx->idctx, CMS_SIGN_SERVER,
                                             reqctx->opts->require_crl_checking,
-                                            (unsigned char *)
-                                            kdc_reply->u.dh_Info.dhSignedData.data,
-                                            kdc_reply->u.dh_Info.dhSignedData.length,
+                                            (unsigned char *) signed_data.data,
+                                            signed_data.length,
                                             (unsigned char **)&dh_data.data,
                                             &dh_data.length,
                                             NULL, NULL, NULL)) != 0) {
@@ -743,8 +759,7 @@ pkinit_as_rep_parse(krb5_context context,
             goto cleanup;
         }
         TRACE_PKINIT_CLIENT_REP_DH(context);
-        break;
-    case choice_pa_pk_as_rep_encKeyPack:
+    } else {
         pkiDebug("as_rep: RSA key transport algorithm\n");
         if ((retval = cms_envelopeddata_verify(context, plgctx->cryptoctx,
                                                reqctx->cryptoctx, reqctx->idctx, pa_type,
@@ -759,11 +774,6 @@ pkinit_as_rep_parse(krb5_context context,
             goto cleanup;
         }
         TRACE_PKINIT_CLIENT_REP_RSA(context);
-        break;
-    default:
-        pkiDebug("unknown as_rep type %d\n", kdc_reply->choice);
-        retval = -1;
-        goto cleanup;
     }
     retval = krb5_build_principal_ext(context, &kdc_princ,
                                       request->server->realm.length,
@@ -801,31 +811,47 @@ pkinit_as_rep_parse(krb5_context context,
 
     OCTETDATA_TO_KRB5DATA(&dh_data, &k5data);
 
-    switch(kdc_reply->choice) {
-    case choice_pa_pk_as_rep_dhInfo:
+    if ((kdc_reply != NULL &&
+         kdc_reply->choice == choice_pa_pk_as_rep_dhInfo) ||
+        (kdc_reply9 != NULL &&
+         kdc_reply9->choice == choice_pa_pk_as_rep_draft9_dhSignedData)) {
 #ifdef DEBUG_ASN1
         print_buffer_bin(dh_data.data, dh_data.length,
                          "/tmp/client_dh_key");
 #endif
-        if ((retval = k5int_decode_krb5_kdc_dh_key_info(&k5data,
+        if (kdc_reply != NULL &&
+            (retval = k5int_decode_krb5_kdc_dh_key_info(&k5data,
                                                         &kdc_dh)) != 0) {
             pkiDebug("failed to decode kdc_dh_key_info\n");
             goto cleanup;
+        } else
+        if (kdc_reply9 != NULL &&
+            (retval = k5int_decode_krb5_kdc_dh_key_info_draft9(&k5data,
+                                                               &kdc_dh9)) != 0) {
+            pkiDebug("failed to decode kdc_dh_key_info_draft9\n");
+            goto cleanup;
+        } else {
+            pkiDebug("unknown DH reply type\n");
+            retval = -1;
+            goto cleanup;
         }
+        if (kdc_reply != NULL)
+            dh_value = kdc_dh->subjectPublicKey;
+        else
+            dh_value = kdc_dh9->subjectPublicKey;
 
         /* client after KDC reply */
         if ((retval = client_process_dh(context, plgctx->cryptoctx,
                                         reqctx->cryptoctx, reqctx->idctx,
-                                        (unsigned char *)
-                                        kdc_dh->subjectPublicKey.data,
-                                        kdc_dh->subjectPublicKey.length,
+                                        (unsigned char *) dh_value.data,
+                                        dh_value.length,
                                         &client_key, &client_key_len)) != 0) {
             pkiDebug("failed to process dh params\n");
             goto cleanup;
         }
 
         /* If we have a KDF algorithm ID, call the algorithm agility KDF... */
-        if (kdc_reply->u.dh_Info.kdfID) {
+        if (kdc_reply && kdc_reply->u.dh_Info.kdfID) {
             secret.length = client_key_len;
             secret.data = (char *)client_key;
 
@@ -855,9 +881,7 @@ pkinit_as_rep_parse(krb5_context context,
             }
             TRACE_PKINIT_CLIENT_KDF_OS2K(context, key_block);
         }
-
-        break;
-    case choice_pa_pk_as_rep_encKeyPack:
+    } else {
 #ifdef DEBUG_ASN1
         print_buffer_bin(dh_data.data, dh_data.length,
                          "/tmp/client_key_pack");
@@ -891,7 +915,6 @@ pkinit_as_rep_parse(krb5_context context,
                     }
                     krb5_copy_keyblock_contents(context, &key_pack9->replyKey,
                                                 key_block);
-                    break;
                 }
         }
         /*
@@ -941,10 +964,6 @@ pkinit_as_rep_parse(krb5_context context,
                                     key_block);
         TRACE_PKINIT_CLIENT_REP_RSA_KEY(context, key_block, &cksum);
 
-        break;
-    default:
-        pkiDebug("unknow as_rep type %d\n", kdc_reply->choice);
-        goto cleanup;
     }
 
     retval = 0;
