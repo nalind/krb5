@@ -84,6 +84,7 @@ krb5int_accessor(krb5int_access *internals, krb5_int32 version)
             SC (encode_krb5_auth_pack, encode_krb5_auth_pack),
             SC (encode_krb5_auth_pack_draft9, encode_krb5_auth_pack_draft9),
             SC (encode_krb5_kdc_dh_key_info, encode_krb5_kdc_dh_key_info),
+            SC (encode_krb5_kdc_dh_key_info_draft9, encode_krb5_kdc_dh_key_info_draft9),
             SC (encode_krb5_reply_key_pack, encode_krb5_reply_key_pack),
             SC (encode_krb5_reply_key_pack_draft9, encode_krb5_reply_key_pack_draft9),
             SC (encode_krb5_td_trusted_certifiers, encode_krb5_td_trusted_certifiers),

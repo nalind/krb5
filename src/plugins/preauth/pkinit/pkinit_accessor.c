@@ -43,6 +43,7 @@
 DEF_FUNC_PTRS(krb5_auth_pack);
 DEF_FUNC_PTRS(krb5_auth_pack_draft9);
 DEF_FUNC_PTRS(krb5_kdc_dh_key_info);
+DEF_FUNC_PTRS(krb5_kdc_dh_key_info_draft9);
 DEF_FUNC_PTRS(krb5_pa_pk_as_rep);
 DEF_FUNC_PTRS(krb5_pa_pk_as_req);
 DEF_FUNC_PTRS(krb5_pa_pk_as_req_draft9);
@@ -103,6 +104,7 @@ pkinit_accessor_init(void)
     SET_PTRS(krb5_auth_pack);
     SET_PTRS(krb5_auth_pack_draft9);
     SET_PTRS(krb5_kdc_dh_key_info);
+    SET_PTRS(krb5_kdc_dh_key_info_draft9);
     SET_PTRS(krb5_pa_pk_as_rep);
     SET_PTRS(krb5_pa_pk_as_req);
     SET_PTRS(krb5_pa_pk_as_req_draft9);

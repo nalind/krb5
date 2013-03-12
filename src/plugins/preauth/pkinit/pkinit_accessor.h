@@ -47,6 +47,7 @@ extern krb5_error_code (*k5int_decode_##type)(const krb5_data *, type ***)
 DEF_EXT_FUNC_PTRS(krb5_auth_pack);
 DEF_EXT_FUNC_PTRS(krb5_auth_pack_draft9);
 DEF_EXT_FUNC_PTRS(krb5_kdc_dh_key_info);
+DEF_EXT_FUNC_PTRS(krb5_kdc_dh_key_info_draft9);
 DEF_EXT_FUNC_PTRS(krb5_pa_pk_as_rep);
 DEF_EXT_FUNC_PTRS(krb5_pa_pk_as_req);
 DEF_EXT_FUNC_PTRS(krb5_pa_pk_as_req_draft9);

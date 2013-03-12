@@ -1547,6 +1547,13 @@ static const struct atype_info *kdc_dh_key_info_fields[] = {
 };
 DEFSEQTYPE(kdc_dh_key_info, krb5_kdc_dh_key_info, kdc_dh_key_info_fields);
 
+DEFFIELD(dh_key_draft9_0, krb5_kdc_dh_key_info_draft9, nonce, 0, int32);
+DEFFIELD(dh_key_draft9_2, krb5_kdc_dh_key_info_draft9, subjectPublicKey, 2, bitstring_data);
+static const struct atype_info *kdc_dh_key_info_draft9_fields[] = {
+    &k5_atype_dh_key_draft9_0, &k5_atype_dh_key_draft9_2
+};
+DEFSEQTYPE(kdc_dh_key_info_draft9, krb5_kdc_dh_key_info_draft9, kdc_dh_key_info_draft9_fields);
+
 DEFFIELD(reply_key_pack_0, krb5_reply_key_pack, replyKey, 0, encryption_key);
 DEFFIELD(reply_key_pack_1, krb5_reply_key_pack, asChecksum, 1, checksum);
 static const struct atype_info *reply_key_pack_fields[] = {
@@ -1601,6 +1608,7 @@ MAKE_ENCODER(encode_krb5_pa_pk_as_rep_draft9, pa_pk_as_rep_draft9);
 MAKE_CODEC(krb5_auth_pack, auth_pack);
 MAKE_CODEC(krb5_auth_pack_draft9, auth_pack_draft9);
 MAKE_CODEC(krb5_kdc_dh_key_info, kdc_dh_key_info);
+MAKE_CODEC(krb5_kdc_dh_key_info_draft9, kdc_dh_key_info_draft9);
 MAKE_CODEC(krb5_reply_key_pack, reply_key_pack);
 MAKE_CODEC(krb5_reply_key_pack_draft9, reply_key_pack_draft9);
 MAKE_CODEC(krb5_td_trusted_certifiers, seqof_external_principal_identifier);

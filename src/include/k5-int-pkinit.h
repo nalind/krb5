@@ -207,6 +207,10 @@ krb5_error_code
 encode_krb5_kdc_dh_key_info(const krb5_kdc_dh_key_info *rep, krb5_data **code);
 
 krb5_error_code
+encode_krb5_kdc_dh_key_info_draft9(const krb5_kdc_dh_key_info_draft9 *rep9,
+                                   krb5_data **code);
+
+krb5_error_code
 encode_krb5_reply_key_pack(const krb5_reply_key_pack *, krb5_data **code);
 
 krb5_error_code

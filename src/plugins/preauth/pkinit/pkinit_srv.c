@@ -682,6 +682,7 @@ pkinit_server_return_padata(krb5_context context,
     unsigned int server_key_len = 0, dh_pubkey_len = 0;
 
     krb5_kdc_dh_key_info dhkey_info;
+    krb5_kdc_dh_key_info_draft9 dhkey_info9;
     krb5_data *encoded_dhkey_info = NULL;
     krb5_pa_pk_as_rep *rep = NULL;
     krb5_pa_pk_as_rep_draft9 *rep9 = NULL;
@@ -796,24 +797,27 @@ pkinit_server_return_padata(krb5_context context,
             pkiDebug("failed to process/create dh paramters\n");
             goto cleanup;
         }
-    }
-    if ((rep9 != NULL &&
-         rep9->choice == choice_pa_pk_as_rep_draft9_dhSignedData) ||
-        (rep != NULL && rep->choice == choice_pa_pk_as_rep_dhInfo)) {
-
         /*
          * This is DH, so don't generate the key until after we
          * encode the reply, because the encoded reply is needed
          * to generate the key in some cases.
          */
+        if (rep != NULL) {
+            dhkey_info.subjectPublicKey.length = dh_pubkey_len;
+            dhkey_info.subjectPublicKey.data = (char *)dh_pubkey;
+            dhkey_info.nonce = request->nonce;
+            dhkey_info.dhKeyExpiration = 0;
 
-        dhkey_info.subjectPublicKey.length = dh_pubkey_len;
-        dhkey_info.subjectPublicKey.data = (char *)dh_pubkey;
-        dhkey_info.nonce = request->nonce;
-        dhkey_info.dhKeyExpiration = 0;
+            retval = k5int_encode_krb5_kdc_dh_key_info(&dhkey_info,
+                                                       &encoded_dhkey_info);
+	} else  {
+            dhkey_info9.subjectPublicKey.length = dh_pubkey_len;
+            dhkey_info9.subjectPublicKey.data = (char *)dh_pubkey;
+            dhkey_info9.nonce = request->nonce;
 
-        retval = k5int_encode_krb5_kdc_dh_key_info(&dhkey_info,
-                                                   &encoded_dhkey_info);
+            retval = k5int_encode_krb5_kdc_dh_key_info_draft9(&dhkey_info9,
+                                                              &encoded_dhkey_info);
+	}
         if (retval) {
             pkiDebug("encode_krb5_kdc_dh_key_info failed\n");
             goto cleanup;
@@ -1026,7 +1030,8 @@ pkinit_server_return_padata(krb5_context context,
     /* If this is DH, we haven't computed the key yet, so do it now. */
     if ((rep9 != NULL &&
          rep9->choice == choice_pa_pk_as_rep_draft9_dhSignedData) ||
-        (rep != NULL && rep->choice == choice_pa_pk_as_rep_dhInfo)) {
+        (rep != NULL &&
+         rep->choice == choice_pa_pk_as_rep_dhInfo)) {
 
 	/* If we're not doing draft 9, and mutually supported KDFs were found,
 	 * use the algorithm agility KDF. */

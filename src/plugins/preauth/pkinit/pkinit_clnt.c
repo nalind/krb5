@@ -695,14 +695,16 @@ pkinit_as_rep_parse(krb5_context context,
     krb5_error_code retval = KRB5KDC_ERR_PREAUTH_FAILED;
     krb5_principal kdc_princ = NULL;
     krb5_pa_pk_as_rep *kdc_reply = NULL;
+    krb5_pa_pk_as_rep_draft9 *kdc_reply9 = NULL;
     krb5_kdc_dh_key_info *kdc_dh = NULL;
+    krb5_kdc_dh_key_info_draft9 *kdc_dh9 = NULL;
     krb5_reply_key_pack *key_pack = NULL;
     krb5_reply_key_pack_draft9 *key_pack9 = NULL;
     krb5_data dh_data = { 0, 0, NULL };
     unsigned char *client_key = NULL, *kdc_hostname = NULL;
     unsigned int client_key_len = 0;
     krb5_checksum cksum = {0, 0, 0, NULL};
-    krb5_data k5data;
+    krb5_data k5data, signed_data, dh_value;
     krb5_data secret;
     int valid_san = 0;
     int valid_eku = 0;
