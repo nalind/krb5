@@ -253,7 +253,11 @@ pkinit_as_req_create(krb5_context context,
     /* Create the authpack */
     switch((int)reqctx->pa_type) {
     case KRB5_PADATA_PK_AS_REQ_OLD:
-        protocol = RSA_PROTOCOL;
+        if (protocol == DEF_PROTOCOL)
+            protocol = RSA_PROTOCOL;
+        init_krb5_subject_pk_info(&info);
+        if (info == NULL)
+            goto cleanup;
         init_krb5_auth_pack_draft9(&auth_pack9);
         if (auth_pack9 == NULL)
             goto cleanup;
@@ -261,9 +265,12 @@ pkinit_as_req_create(krb5_context context,
         auth_pack9->pkAuthenticator.cusec = cusec;
         auth_pack9->pkAuthenticator.nonce = nonce;
         auth_pack9->pkAuthenticator.kdcName = server;
+        auth_pack9->clientPublicValue = info;
         free(cksum->contents);
         break;
     case KRB5_PADATA_PK_AS_REQ:
+        if (protocol == DEF_PROTOCOL)
+            protocol = DH_PROTOCOL;
         init_krb5_subject_pk_info(&info);
         if (info == NULL)
             goto cleanup;
@@ -320,6 +327,7 @@ pkinit_as_req_create(krb5_context context,
         pkiDebug("as_req: RSA key transport algorithm\n");
         switch((int)reqctx->pa_type) {
         case KRB5_PADATA_PK_AS_REQ_OLD:
+            free_krb5_subject_pk_info(&info);
             auth_pack9->clientPublicValue = NULL;
             break;
         case KRB5_PADATA_PK_AS_REQ:
@@ -1449,6 +1457,10 @@ handle_gic_opt(krb5_context context,
         if (strcmp(value, "yes") == 0) {
             pkiDebug("Setting flag to use RSA_PROTOCOL\n");
             plgctx->opts->dh_or_rsa = RSA_PROTOCOL;
+        }
+        if (strcmp(value, "no") == 0) {
+            pkiDebug("Setting flag to use DH_PROTOCOL\n");
+            plgctx->opts->dh_or_rsa = DH_PROTOCOL;
         }
     }
     return 0;

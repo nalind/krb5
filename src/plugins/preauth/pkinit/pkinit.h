@@ -62,6 +62,7 @@ extern int longhorn;	    /* XXX Talking to a Longhorn server? */
 #define PK_NOSLOT 999999
 #endif
 
+#define DEF_PROTOCOL    0
 #define DH_PROTOCOL     1
 #define RSA_PROTOCOL    2
 

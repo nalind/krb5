@@ -60,7 +60,7 @@ pkinit_init_req_opts(pkinit_req_opts **reqopts)
     opts->require_eku = 1;
     opts->accept_secondary_eku = 0;
     opts->allow_upn = 0;
-    opts->dh_or_rsa = DH_PROTOCOL;
+    opts->dh_or_rsa = DEF_PROTOCOL;
     opts->require_crl_checking = 0;
     opts->dh_size = PKINIT_DEFAULT_DH_MIN_BITS;
     opts->win2k_target = 0;
@@ -91,7 +91,7 @@ pkinit_init_plg_opts(pkinit_plg_opts **plgopts)
 
     opts->require_eku = 1;
     opts->accept_secondary_eku = 0;
-    opts->dh_or_rsa = DH_PROTOCOL;
+    opts->dh_or_rsa = DEF_PROTOCOL;
     opts->allow_upn = 0;
     opts->require_crl_checking = 0;
 
