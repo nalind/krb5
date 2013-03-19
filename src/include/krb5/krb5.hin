@@ -1846,6 +1846,7 @@ krb5_verify_checksum(krb5_context context, krb5_cksumtype ctype,
 #define KRB5_AUTHDATA_INITIAL_VERIFIED_CAS      9
 #define KRB5_AUTHDATA_OSF_DCE   64
 #define KRB5_AUTHDATA_SESAME    65
+#define KRB5_AUTHDATA_AUTHENTICATION_STRENGTH   70 /**< RFC 6113 */
 #define KRB5_AUTHDATA_WIN2K_PAC 128
 #define KRB5_AUTHDATA_ETYPE_NEGOTIATION 129     /**< RFC 4537 */
 #define KRB5_AUTHDATA_SIGNTICKET        512     /**< formerly 142 in krb5 1.8 */

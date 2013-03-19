@@ -1076,6 +1076,34 @@ finish_verify_padata(void *arg, krb5_error_code code,
             free(authz_data);
         }
 
+        {
+            krb5_pa_data pa_type;
+            krb5_pa_data *pa_types[2] = {&pa_type, NULL};
+            krb5_data *strength;
+            krb5_authdata auth_strength, **kdc_issued;
+            krb5_authdata *auth_strengths[2] = {&auth_strength, NULL};
+            kdc_realm_t *kdc_active_realm = state->realm;
+
+            memset(&pa_type, 0, sizeof(pa_type));
+            pa_type.pa_type = state->pa_sys->type;
+            memset(&strength, 0, sizeof(strength));
+            if (encode_krb5_padata_sequence(pa_types, &strength) == 0) {
+                memset(&auth_strength, 0, sizeof(auth_strength));
+                auth_strength.ad_type = KRB5_AUTHDATA_AUTHENTICATION_STRENGTH;
+                auth_strength.contents = (unsigned char *) strength->data;
+                auth_strength.length = strength->length;
+                if (krb5_make_authdata_kdc_issued(state->context,
+                                                  state->enc_tkt_reply->session,
+                                                  tgs_server,
+                                                  auth_strengths,
+                                                  &kdc_issued) == 0) {
+                    add_authorization_data(state->enc_tkt_reply, kdc_issued);
+                    krb5_free_authdata(state->context, kdc_issued);
+                }
+                krb5_free_data(state->context, strength);
+            }
+        }
+
         state->pa_ok = 1;
         if (state->pa_sys->flags & PA_SUFFICIENT) {
             finish_check_padata(state, state->saved_code);
