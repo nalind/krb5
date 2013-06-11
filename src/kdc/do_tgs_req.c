@@ -743,14 +743,12 @@ process_tgs_req(struct server_handle *handle, krb5_data *pkt,
         status = "ISSUE";
     }
 
-    memset(ticket_reply.enc_part.ciphertext.data, 0,
-           ticket_reply.enc_part.ciphertext.length);
-    free(ticket_reply.enc_part.ciphertext.data);
+    zapfree(ticket_reply.enc_part.ciphertext.data,
+            ticket_reply.enc_part.ciphertext.length);
     /* these parts are left on as a courtesy from krb5_encode_kdc_rep so we
        can use them in raw form if needed.  But, we don't... */
-    memset(reply.enc_part.ciphertext.data, 0,
-           reply.enc_part.ciphertext.length);
-    free(reply.enc_part.ciphertext.data);
+    zapfree(reply.enc_part.ciphertext.data,
+            reply.enc_part.ciphertext.length);
 
 cleanup:
     assert(status != NULL);
