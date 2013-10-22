@@ -4,6 +4,7 @@ Administration  programs
 .. toctree::
    :maxdepth: 1
 
+   gss-server.rst
    kadmin_local.rst
    kadmind.rst
    kdb5_util.rst
@@ -14,4 +15,5 @@ Administration  programs
    kproplog.rst
    ktutil.rst
    k5srvutil.rst
+   sim_server.rst
    sserver.rst
