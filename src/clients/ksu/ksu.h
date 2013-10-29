@@ -124,9 +124,6 @@ extern char *flags_string (krb5_creds *);
 extern krb5_error_code krb5_get_login_princ
 (const char *, char ***);
 
-extern void show_credential
-(krb5_context, krb5_creds *, krb5_ccache);
-
 extern int gen_sym (void);
 
 extern krb5_error_code krb5_ccache_overwrite

@@ -39,14 +39,14 @@ copies the default cache into the secondary cache,
 
 ************************************************************************/
 
-void show_credential();
+static void show_credential(krb5_context, krb5_creds *, krb5_ccache);
 
-static krb5_error_code krb5_store_all_creds
-(krb5_context, krb5_ccache, krb5_creds **);
+static krb5_error_code krb5_store_all_creds(krb5_context, krb5_ccache,
+                                            krb5_creds **);
 
-static krb5_error_code krb5_store_some_creds
-(krb5_context, krb5_ccache, krb5_creds **,
- krb5_principal, krb5_boolean *);
+static krb5_error_code krb5_store_some_creds(krb5_context, krb5_ccache,
+                                             krb5_creds **, krb5_principal,
+                                             krb5_boolean *);
 
 /* modifies only the cc_other, the algorithm may look a bit funny,
    but I had to do it this way, since remove function did not come
@@ -439,7 +439,7 @@ krb5_get_login_princ(luser, princ_list)
 
 
 
-void
+static void
 show_credential(context, cred, cc)
     krb5_context context;
     krb5_creds *cred;
