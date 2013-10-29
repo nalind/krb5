@@ -41,6 +41,13 @@ copies the default cache into the secondary cache,
 
 void show_credential();
 
+static krb5_error_code krb5_store_all_creds
+(krb5_context, krb5_ccache, krb5_creds **, krb5_creds **);
+
+static krb5_error_code krb5_store_some_creds
+(krb5_context, krb5_ccache, krb5_creds **, krb5_creds **,
+ krb5_principal, krb5_boolean *);
+
 /* modifies only the cc_other, the algorithm may look a bit funny,
    but I had to do it this way, since remove function did not come
    with k5 beta 3 release.
@@ -154,7 +161,8 @@ krb5_error_code krb5_ccache_copy (context, cc_def, cc_other_tag,
 }
 
 
-krb5_error_code krb5_store_all_creds(context, cc, creds_def, creds_other)
+static krb5_error_code krb5_store_all_creds(context, cc, creds_def,
+                                            creds_other)
     krb5_context context;
     krb5_ccache cc;
     krb5_creds **creds_def;
@@ -601,8 +609,8 @@ krb5_error_code krb5_ccache_overwrite(context, ccs, cct, primary_principal)
     return retval;
 }
 
-krb5_error_code krb5_store_some_creds(context, cc, creds_def, creds_other, prst,
-                                      stored)
+static krb5_error_code krb5_store_some_creds(context, cc, creds_def,
+                                             creds_other, prst, stored)
     krb5_context context;
     krb5_ccache cc;
     krb5_creds **creds_def;

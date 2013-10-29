@@ -110,12 +110,6 @@ extern krb5_error_code krb5_ccache_copy
 (krb5_context, krb5_ccache, char *, krb5_principal,
  krb5_boolean, krb5_ccache *, krb5_boolean *, krb5_boolean *, uid_t);
 
-extern krb5_error_code krb5_store_all_creds
-(krb5_context, krb5_ccache, krb5_creds **, krb5_creds **);
-
-extern krb5_error_code krb5_store_all_creds
-(krb5_context, krb5_ccache, krb5_creds **, krb5_creds **);
-
 extern krb5_boolean compare_creds
 (krb5_context, krb5_creds *, krb5_creds *);
 
@@ -137,10 +131,6 @@ extern int gen_sym (void);
 
 extern krb5_error_code krb5_ccache_overwrite
 (krb5_context, krb5_ccache, krb5_ccache, krb5_principal);
-
-extern krb5_error_code krb5_store_some_creds
-(krb5_context, krb5_ccache, krb5_creds **, krb5_creds **,
- krb5_principal, krb5_boolean *);
 
 extern krb5_boolean krb5_ccache_name_is_initialized
 (krb5_context, const char *);
