@@ -123,9 +123,6 @@ extern krb5_error_code krb5_get_login_princ
 
 extern int gen_sym (void);
 
-extern krb5_error_code krb5_ccache_overwrite
-(krb5_context, krb5_ccache, krb5_ccache, krb5_principal);
-
 extern krb5_boolean krb5_ccache_name_is_initialized
 (krb5_context, const char *);
 

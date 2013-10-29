@@ -496,47 +496,6 @@ int gen_sym(){
     return i;
 }
 
-krb5_error_code krb5_ccache_overwrite(context, ccs, cct, primary_principal)
-    krb5_context context;
-    krb5_ccache ccs;
-    krb5_ccache cct;
-    krb5_principal primary_principal;
-{
-    krb5_error_code retval=0;
-    krb5_principal temp_principal;
-    krb5_creds ** ccs_creds_arr = NULL;
-    int i=0;
-
-    if (krb5_ccache_is_initialized(context, ccs)) {
-        if ((retval = krb5_get_nonexp_tkts(context,  ccs, &ccs_creds_arr))){
-            return retval;
-        }
-    }
-
-    if (krb5_ccache_is_initialized(context, cct)) {
-        if ((retval = krb5_cc_get_principal(context, cct, &temp_principal))){
-            return retval;
-        }
-    }else{
-        temp_principal = primary_principal;
-    }
-
-    if ((retval = krb5_cc_initialize(context, cct, temp_principal))){
-        return retval;
-    }
-
-    retval = krb5_store_all_creds(context, cct, ccs_creds_arr);
-
-    if (ccs_creds_arr){
-        while (ccs_creds_arr[i]){
-            krb5_free_creds(context, ccs_creds_arr[i]);
-            i++;
-        }
-    }
-
-    return retval;
-}
-
 static krb5_error_code krb5_store_some_creds(context, cc, creds_def,
                                              prst, stored)
     krb5_context context;
