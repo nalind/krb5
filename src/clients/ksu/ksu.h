@@ -110,9 +110,6 @@ extern krb5_error_code krb5_ccache_copy
 (krb5_context, krb5_ccache, char *, krb5_principal,
  krb5_boolean, krb5_ccache *, krb5_boolean *, krb5_boolean *, uid_t);
 
-extern krb5_boolean compare_creds
-(krb5_context, krb5_creds *, krb5_creds *);
-
 extern krb5_error_code krb5_get_nonexp_tkts
 (krb5_context, krb5_ccache, krb5_creds ***);
 

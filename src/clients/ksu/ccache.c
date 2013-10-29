@@ -180,24 +180,6 @@ static krb5_error_code krb5_store_all_creds(context, cc, creds_def)
     return 0;
 }
 
-krb5_boolean compare_creds(context, cred1, cred2)
-    krb5_context context;
-    krb5_creds *cred1;
-    krb5_creds *cred2;
-{
-    krb5_boolean retval;
-
-    retval = krb5_principal_compare (context, cred1->client, cred2->client);
-
-    if (retval == TRUE)
-        retval = krb5_principal_compare (context, cred1->server,                                                         cred2->server);
-
-    return retval;
-}
-
-
-
-
 krb5_error_code krb5_get_nonexp_tkts(context, cc, creds_array)
     krb5_context context;
     krb5_ccache cc;
