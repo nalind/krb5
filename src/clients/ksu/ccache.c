@@ -42,10 +42,10 @@ copies the default cache into the secondary cache,
 void show_credential();
 
 static krb5_error_code krb5_store_all_creds
-(krb5_context, krb5_ccache, krb5_creds **, krb5_creds **);
+(krb5_context, krb5_ccache, krb5_creds **);
 
 static krb5_error_code krb5_store_some_creds
-(krb5_context, krb5_ccache, krb5_creds **, krb5_creds **,
+(krb5_context, krb5_ccache, krb5_creds **,
  krb5_principal, krb5_boolean *);
 
 /* modifies only the cc_other, the algorithm may look a bit funny,
@@ -74,7 +74,6 @@ krb5_error_code krb5_ccache_copy (context, cc_def, cc_other_tag,
     char * saved_cc_default_name;
     krb5_error_code retval=0;
     krb5_creds ** cc_def_creds_arr = NULL;
-    krb5_creds ** cc_other_creds_arr = NULL;
 
     cc_other = (krb5_ccache *)  xcalloc(1, sizeof (krb5_ccache));
 
@@ -137,8 +136,7 @@ krb5_error_code krb5_ccache_copy (context, cc_def, cc_other_tag,
         }
     }
 
-    retval = krb5_store_all_creds(context, * cc_other, cc_def_creds_arr,
-                                  cc_other_creds_arr);
+    retval = krb5_store_all_creds(context, * cc_other, cc_def_creds_arr);
 
     if (cc_def_creds_arr){
         while (cc_def_creds_arr[i]){
@@ -149,24 +147,15 @@ krb5_error_code krb5_ccache_copy (context, cc_def, cc_other_tag,
 
     i=0;
 
-    if(cc_other_creds_arr){
-        while (cc_other_creds_arr[i]){
-            krb5_free_creds(context, cc_other_creds_arr[i]);
-            i++;
-        }
-    }
-
     *cc_out = *cc_other;
     return retval;
 }
 
 
-static krb5_error_code krb5_store_all_creds(context, cc, creds_def,
-                                            creds_other)
+static krb5_error_code krb5_store_all_creds(context, cc, creds_def)
     krb5_context context;
     krb5_ccache cc;
     krb5_creds **creds_def;
-    krb5_creds **creds_other;
 {
 
     int i = 0;
@@ -174,15 +163,10 @@ static krb5_error_code krb5_store_all_creds(context, cc, creds_def,
     krb5_creds ** temp_creds= NULL;
 
 
-    if ((creds_def == NULL) && (creds_other == NULL))
+    if (creds_def == NULL)
         return 0;
 
-    if ((creds_def == NULL) && (creds_other != NULL))
-        temp_creds = creds_other;
-
-    if ((creds_def != NULL) && (creds_other == NULL))
-        temp_creds = creds_def;
-
+    temp_creds = creds_def;
 
     if (temp_creds){
         while(temp_creds[i]){
@@ -192,40 +176,6 @@ static krb5_error_code krb5_store_all_creds(context, cc, creds_def,
             }
             i++;
         }
-    }
-    else { /* both arrays have elements in them */
-
-        return  KRB5KRB_ERR_GENERIC;
-
-/************   while(creds_other[i]){
-                        cmp = FALSE;
-                        j = 0;
-                        while(creds_def[j]){
-                           cmp = compare_creds(creds_other[i],creds_def[j]);
-
-                           if( cmp == TRUE) break;
-
-                           j++;
-                        }
-                        if (cmp == FALSE){
-                                if (retval= krb5_cc_store_cred(context, cc,
-                                                         creds_other[i])){
-                                                return retval;
-                                }
-                        }
-                        i ++;
-                }
-
-                i=0;
-                while(creds_def[i]){
-                        if (retval= krb5_cc_store_cred(context, cc,
-                                                       creds_def[i])){
-                                return retval;
-                        }
-                        i++;
-                }
-
-**************/
     }
     return 0;
 }
@@ -597,7 +547,7 @@ krb5_error_code krb5_ccache_overwrite(context, ccs, cct, primary_principal)
         return retval;
     }
 
-    retval = krb5_store_all_creds(context, cct, ccs_creds_arr, NULL);
+    retval = krb5_store_all_creds(context, cct, ccs_creds_arr);
 
     if (ccs_creds_arr){
         while (ccs_creds_arr[i]){
@@ -610,11 +560,10 @@ krb5_error_code krb5_ccache_overwrite(context, ccs, cct, primary_principal)
 }
 
 static krb5_error_code krb5_store_some_creds(context, cc, creds_def,
-                                             creds_other, prst, stored)
+                                             prst, stored)
     krb5_context context;
     krb5_ccache cc;
     krb5_creds **creds_def;
-    krb5_creds **creds_other;
     krb5_principal prst;
     krb5_boolean *stored;
 {
@@ -625,15 +574,10 @@ static krb5_error_code krb5_store_some_creds(context, cc, creds_def,
     krb5_boolean temp_stored = FALSE;
 
 
-    if ((creds_def == NULL) && (creds_other == NULL))
+    if (creds_def == NULL)
         return 0;
 
-    if ((creds_def == NULL) && (creds_other != NULL))
-        temp_creds = creds_other;
-
-    if ((creds_def != NULL) && (creds_other == NULL))
-        temp_creds = creds_def;
-
+    temp_creds = creds_def;
 
     if (temp_creds){
         while(temp_creds[i]){
@@ -650,9 +594,6 @@ static krb5_error_code krb5_store_some_creds(context, cc, creds_def,
 
             i++;
         }
-    }
-    else { /* both arrays have elements in them */
-        return KRB5KRB_ERR_GENERIC;
     }
 
     *stored = temp_stored;
@@ -688,7 +629,6 @@ krb5_error_code krb5_ccache_copy_restricted (context, cc_def, cc_other_tag,
     char * saved_cc_default_name;
     krb5_error_code retval=0;
     krb5_creds ** cc_def_creds_arr = NULL;
-    krb5_creds ** cc_other_creds_arr = NULL;
 
     cc_other = (krb5_ccache *)  xcalloc(1, sizeof (krb5_ccache));
 
@@ -740,7 +680,7 @@ krb5_error_code krb5_ccache_copy_restricted (context, cc_def, cc_other_tag,
     }
 
     retval = krb5_store_some_creds(context, * cc_other,
-                                   cc_def_creds_arr, cc_other_creds_arr, prst, stored);
+                                   cc_def_creds_arr, prst, stored);
 
 
 
@@ -752,13 +692,6 @@ krb5_error_code krb5_ccache_copy_restricted (context, cc_def, cc_other_tag,
     }
 
     i=0;
-
-    if(cc_other_creds_arr){
-        while (cc_other_creds_arr[i]){
-            krb5_free_creds(context, cc_other_creds_arr[i]);
-            i++;
-        }
-    }
 
     *cc_out = *cc_other;
     return retval;
@@ -797,7 +730,7 @@ krb5_error_code krb5_ccache_filter (context, cc, prst)
         }
 
         if ((retval = krb5_store_some_creds(context, cc, cc_creds_arr,
-                                            NULL, prst, &stored))){
+                                            prst, &stored))){
             return retval;
         }
 
