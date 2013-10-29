@@ -160,18 +160,14 @@ static krb5_error_code krb5_store_all_creds(context, cc, creds_def)
 
     int i = 0;
     krb5_error_code retval = 0;
-    krb5_creds ** temp_creds= NULL;
-
 
     if (creds_def == NULL)
         return 0;
 
-    temp_creds = creds_def;
-
-    if (temp_creds){
-        while(temp_creds[i]){
+    if (creds_def) {
+        while (creds_def[i]) {
             if ((retval= krb5_cc_store_cred(context, cc,
-                                            temp_creds[i]))){
+                                            creds_def[i]))){
                 return retval;
             }
             i++;
@@ -552,23 +548,19 @@ static krb5_error_code krb5_store_some_creds(context, cc, creds_def,
 
     int i = 0;
     krb5_error_code retval = 0;
-    krb5_creds ** temp_creds= NULL;
     krb5_boolean temp_stored = FALSE;
-
 
     if (creds_def == NULL)
         return 0;
 
-    temp_creds = creds_def;
-
-    if (temp_creds){
-        while(temp_creds[i]){
+    if (creds_def){
+        while (creds_def[i]) {
             if (krb5_principal_compare(context,
-                                       temp_creds[i]->client,
+                                       creds_def[i]->client,
                                        prst)== TRUE) {
 
                 if ((retval = krb5_cc_store_cred(context,
-                                                 cc,temp_creds[i]))){
+                                                 cc,creds_def[i]))){
                     return retval;
                 }
                 temp_stored = TRUE;
