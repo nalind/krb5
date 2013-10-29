@@ -702,25 +702,6 @@ krb5_boolean  krb5_find_princ_in_cred_list (context, creds_list, princ)
     return temp_stored;
 }
 
-krb5_error_code  krb5_find_princ_in_cache (context, cc, princ, found)
-    krb5_context context;
-    krb5_ccache cc;
-    krb5_principal princ;
-    krb5_boolean *found;
-{
-    krb5_error_code retval;
-    krb5_creds ** creds_list = NULL;
-
-    if (krb5_ccache_is_initialized(context, cc)) {
-        if ((retval = krb5_get_nonexp_tkts(context, cc, &creds_list))){
-            return retval;
-        }
-    }
-
-    *found = krb5_find_princ_in_cred_list(context, creds_list, princ);
-    return 0;
-}
-
 extern krb5_boolean
 krb5_ccache_name_is_initialized(krb5_context context, const char *cctag)
 {

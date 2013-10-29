@@ -142,9 +142,6 @@ extern krb5_error_code krb5_ccache_filter
 extern krb5_boolean krb5_find_princ_in_cred_list
 (krb5_context, krb5_creds **, krb5_principal);
 
-extern krb5_error_code krb5_find_princ_in_cache
-(krb5_context, krb5_ccache, krb5_principal, krb5_boolean *);
-
 extern void printtime (time_t);
 
 /* authorization.c */
