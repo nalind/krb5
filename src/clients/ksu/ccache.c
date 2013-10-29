@@ -143,6 +143,7 @@ krb5_error_code krb5_ccache_copy (context, cc_def, cc_other_tag,
             krb5_free_creds(context, cc_def_creds_arr[i]);
             i++;
         }
+        free(cc_def_creds_arr);
     }
 
     i=0;
@@ -622,6 +623,7 @@ krb5_error_code krb5_ccache_copy_restricted (context, cc_def, cc_other_tag,
             krb5_free_creds(context, cc_def_creds_arr[i]);
             i++;
         }
+        free(cc_def_creds_arr);
     }
 
     i=0;
@@ -672,6 +674,7 @@ krb5_error_code krb5_ccache_filter (context, cc, prst)
                 krb5_free_creds(context, cc_creds_arr[i]);
                 i++;
             }
+            free(cc_creds_arr);
         }
     }
     return 0;
