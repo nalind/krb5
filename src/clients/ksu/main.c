@@ -117,6 +117,7 @@ main (argc, argv)
     int pargc;
     char ** pargv;
     krb5_boolean stored = FALSE;
+    krb5_boolean reused = FALSE;
     krb5_principal  kdc_server;
     krb5_boolean zero_password;
 
@@ -523,7 +524,8 @@ main (argc, argv)
     } else {
 
         retval = krb5_ccache_copy(ksu_context, cc_source, KRB5_TEMPORARY_CACHE,
-                                  client, FALSE, &cc_tmp, &stored, 0);
+                                  client, FALSE, &cc_tmp, &stored, &reused,
+                                  0);
         if (retval) {
             com_err(prog_name, retval, _("while copying cache %s to %s"),
                     krb5_cc_get_name(ksu_context, cc_source),
@@ -801,7 +803,7 @@ main (argc, argv)
 
     retval = krb5_ccache_copy(ksu_context, cc_tmp, cc_target_tag,
                               client, TRUE, &cc_target, &stored,
-                              target_pwd->pw_uid);
+                              &reused, target_pwd->pw_uid);
     if (retval) {
         com_err(prog_name, retval, _("while copying cache %s to %s"),
                 krb5_cc_get_name(ksu_context, cc_tmp), cc_target_tag);
@@ -824,6 +826,11 @@ main (argc, argv)
                         KRB5_ENV_CCNAME);
                 sweep_up(ksu_context, cc_target);
                 exit(1);
+            }
+            if (reused && !keep_target_cache) {
+                print_status(_("Reusing cache %s, it will not be removed.\n"),
+                             cc_target_tag);
+                keep_target_cache = TRUE;
             }
             krb5_free_string(ksu_context, cc_target_tag);
         } else {

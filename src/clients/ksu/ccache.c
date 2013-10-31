@@ -48,7 +48,7 @@ void show_credential();
 
 krb5_error_code krb5_ccache_copy (context, cc_def, cc_other_tag,
                                   primary_principal, destroy_def,
-                                  cc_out, stored, target_uid)
+                                  cc_out, stored, reused, target_uid)
 /* IN */
     krb5_context context;
     krb5_ccache cc_def;
@@ -59,10 +59,12 @@ krb5_error_code krb5_ccache_copy (context, cc_def, cc_other_tag,
     /* OUT */
     krb5_ccache *cc_out;
     krb5_boolean *stored;
+    krb5_boolean *reused;
 {
     int i=0;
     krb5_ccache  * cc_other;
     const char * cc_other_type;
+    char * saved_cc_default_name;
     krb5_error_code retval=0;
     krb5_creds ** cc_def_creds_arr = NULL;
     krb5_creds ** cc_other_creds_arr = NULL;
@@ -99,9 +101,33 @@ krb5_error_code krb5_ccache_copy (context, cc_def, cc_other_tag,
         return errno;
     }
 
-
-    if ((retval = krb5_cc_initialize(context, *cc_other, primary_principal))){
-        return retval;
+    if (krb5_cc_support_switch(context, cc_other_type)) {
+        *reused = TRUE;
+        krb5_cc_close(context, *cc_other);
+        saved_cc_default_name = strdup(krb5_cc_default_name(context));
+        krb5_cc_set_default_name(context, cc_other_tag);
+        if (krb5_cc_cache_match(context, primary_principal, cc_other) != 0) {
+            *reused = FALSE;
+            retval = krb5_cc_new_unique(context, cc_other_type, NULL,
+                                        cc_other);
+            if (retval) {
+                krb5_cc_set_default_name(context, saved_cc_default_name);
+                free(saved_cc_default_name);
+                return retval;
+            }
+        }
+        retval = krb5_cc_initialize(context, *cc_other, primary_principal);
+        krb5_cc_set_default_name(context, saved_cc_default_name);
+        free(saved_cc_default_name);
+        if (retval) {
+            return retval;
+        }
+    } else {
+        *reused = FALSE;
+        retval = krb5_cc_initialize(context, *cc_other, primary_principal);
+        if (retval) {
+            return retval;
+        }
     }
 
     retval = krb5_store_all_creds(context, * cc_other, cc_def_creds_arr,
@@ -650,6 +676,7 @@ krb5_error_code krb5_ccache_copy_restricted (context, cc_def, cc_other_tag,
     int i=0;
     krb5_ccache  * cc_other;
     const char * cc_other_type;
+    char * saved_cc_default_name;
     krb5_error_code retval=0;
     krb5_creds ** cc_def_creds_arr = NULL;
     krb5_creds ** cc_other_creds_arr = NULL;
@@ -677,9 +704,30 @@ krb5_error_code krb5_ccache_copy_restricted (context, cc_def, cc_other_tag,
         return errno;
     }
 
-
-    if ((retval = krb5_cc_initialize(context, *cc_other, prst))){
-        return retval;
+    if (krb5_cc_support_switch(context, cc_other_type)) {
+        krb5_cc_close(context, *cc_other);
+        saved_cc_default_name = strdup(krb5_cc_default_name(context));
+        krb5_cc_set_default_name(context, cc_other_tag);
+        if (krb5_cc_cache_match(context, prst, cc_other) != 0) {
+            retval = krb5_cc_new_unique(context, cc_other_type, NULL,
+                                        cc_other);
+            if (retval) {
+                krb5_cc_set_default_name(context, saved_cc_default_name);
+                free(saved_cc_default_name);
+                return retval;
+            }
+        }
+        retval = krb5_cc_initialize(context, *cc_other, prst);
+        if (retval) {
+            return retval;
+        }
+        krb5_cc_set_default_name(context, saved_cc_default_name);
+        free(saved_cc_default_name);
+    } else {
+        retval = krb5_cc_initialize(context, *cc_other, prst);
+        if (retval) {
+            return retval;
+        }
     }
 
     retval = krb5_store_some_creds(context, * cc_other,
