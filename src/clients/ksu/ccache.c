@@ -47,12 +47,14 @@ void show_credential();
 */
 
 krb5_error_code krb5_ccache_copy (context, cc_def, cc_other_tag,
-                                  primary_principal, cc_out, stored, target_uid)
+                                  primary_principal, destroy_def,
+                                  cc_out, stored, target_uid)
 /* IN */
     krb5_context context;
     krb5_ccache cc_def;
     char *cc_other_tag;
     krb5_principal primary_principal;
+    krb5_boolean destroy_def;
     uid_t target_uid;
     /* OUT */
     krb5_ccache *cc_out;
@@ -78,6 +80,12 @@ krb5_error_code krb5_ccache_copy (context, cc_def, cc_other_tag,
         if((retval = krb5_get_nonexp_tkts(context,cc_def,&cc_def_creds_arr))){
             return retval;
         }
+    }
+
+    if (destroy_def) {
+        retval = krb5_cc_destroy(context, cc_def);
+        if (retval)
+            return retval;
     }
 
     *stored = krb5_find_princ_in_cred_list(context, cc_def_creds_arr,

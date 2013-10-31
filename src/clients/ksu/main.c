@@ -28,6 +28,7 @@
 
 #include "ksu.h"
 #include "adm_proto.h"
+#include "../../lib/krb5/os/os-proto.h"
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
@@ -481,7 +482,7 @@ main (argc, argv)
     } else {
 
         retval = krb5_ccache_copy(ksu_context, cc_source, KRB5_TEMPORARY_CACHE,
-                                  client, &cc_tmp, &stored, 0);
+                                  client, FALSE, &cc_tmp, &stored, 0);
         if (retval) {
             com_err(prog_name, retval, _("while copying cache %s to %s"),
                     krb5_cc_get_name(ksu_context, cc_source),
@@ -758,7 +759,7 @@ main (argc, argv)
     }
 
     retval = krb5_ccache_copy(ksu_context, cc_tmp, cc_target_tag,
-                              client, &cc_target, &stored,
+                              client, TRUE, &cc_target, &stored,
                               target_pwd->pw_uid);
     if (retval) {
         com_err(prog_name, retval, _("while copying cache %s to %s"),
