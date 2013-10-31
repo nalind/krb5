@@ -144,7 +144,7 @@ krb5_boolean krb5_auth_check(context, client_pname, hostname, options,
         fprintf(stderr, _("         in remotely using an unsecure "
                           "(non-encrypted) channel. \n"));
 
-        /*get the ticket granting ticket, via passwd(promt for passwd)*/
+        /*get the ticket granting ticket, via passwd(prompt for passwd)*/
         if (krb5_get_tkt_via_passwd (context, &cc, client, tgtq.server,
                                      options, & zero_password) == FALSE){
             krb5_seteuid(0);

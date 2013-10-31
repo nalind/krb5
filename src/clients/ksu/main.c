@@ -345,7 +345,7 @@ main (argc, argv)
     /* Okay, now we have *some* passwd entry that matches the
        current real uid.  */
 
-    /* allocate space and copy the usernamane there */
+    /* allocate space and copy the username there */
     source_user = xstrdup(pwd->pw_name);
     source_uid = pwd->pw_uid;
     source_gid = pwd->pw_gid;
@@ -535,7 +535,7 @@ main (argc, argv)
 
     }
 
-    /* Become root for authentication*/
+    /* Become root for authentication */
 
     if (krb5_seteuid(0)) {
         com_err(prog_name, errno, _("while reclaiming root uid"));

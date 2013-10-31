@@ -48,11 +48,11 @@ static krb5_error_code krb5_store_some_creds(krb5_context, krb5_ccache,
                                              krb5_creds **, krb5_principal,
                                              krb5_boolean *);
 
-/* modifies only the cc_other, the algorithm may look a bit funny,
-   but I had to do it this way, since remove function did not come
-   with k5 beta 3 release.
-*/
-
+/*
+ * Modifies only the cc_out named by cc_other_tag.  The algorithm may look a
+ * bit funny, but we have to do it this way, since the "remove" function is not
+ * supported for all ccache types.
+ */
 krb5_error_code krb5_ccache_copy (context, cc_def, cc_other_tag,
                                   primary_principal, destroy_def,
                                   cc_out, stored, reused, target_uid)
