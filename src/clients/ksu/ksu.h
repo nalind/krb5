@@ -44,7 +44,7 @@
 #define KRB5_DEFAULT_OPTIONS 0
 #define KRB5_DEFAULT_TKT_LIFE 60*60*12 /* 12 hours */
 
-#define KRB5_SECONDARY_CACHE "FILE:/tmp/krb5cc_"
+#define KRB5_DEFAULT_SECONDARY_CACHE "FILE:/tmp/krb5cc_%{uid}"
 #define KRB5_TEMPORARY_CACHE "MEMORY:_ksu"
 
 #define KRB5_LOGIN_NAME ".k5login"
