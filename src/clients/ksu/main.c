@@ -112,7 +112,6 @@ main (argc, argv)
     extern char * getpass(), *crypt();
     int pargc;
     char ** pargv;
-    struct stat  st_temp;
     krb5_boolean stored = FALSE;
     krb5_principal  kdc_server;
     krb5_boolean zero_password;
@@ -265,9 +264,10 @@ main (argc, argv)
                 if ( strchr(cc_source_tag, ':')){
                     cc_source_tag_tmp = strchr(cc_source_tag, ':') + 1;
 
-                    if( stat( cc_source_tag_tmp, &st_temp)){
+                    if (!krb5_ccache_name_is_initialized(ksu_context,
+                                                         cc_source_tag)) {
                         com_err(prog_name, errno,
-                                _("while looking for credentials file %s"),
+                                _("while looking for credentials cache %s"),
                                 cc_source_tag_tmp);
                         exit (1);
                     }
@@ -432,7 +432,8 @@ main (argc, argv)
                      (long) target_uid, gen_sym());
             cc_target_tag_tmp = strchr(cc_target_tag, ':') + 1;
 
-        }while ( !stat ( cc_target_tag_tmp, &st_temp));
+        } while (krb5_ccache_name_is_initialized(ksu_context,
+                                                 cc_target_tag));
     }
 
 
@@ -884,8 +885,6 @@ static void sweep_up(context, cc)
     krb5_ccache cc;
 {
     krb5_error_code retval;
-    const char * cc_name;
-    struct stat  st_temp;
 
     krb5_seteuid(0);
     if (krb5_seteuid(target_uid) < 0) {
@@ -894,9 +893,9 @@ static void sweep_up(context, cc)
         exit(1);
     }
 
-    cc_name = krb5_cc_get_name(context, cc);
-    if ( ! stat(cc_name, &st_temp)){
-        if ((retval = krb5_cc_destroy(context, cc)))
+    if (krb5_ccache_is_initialized(context, cc)) {
+        retval = krb5_cc_destroy(context, cc);
+        if (retval)
             com_err(prog_name, retval, _("while destroying cache"));
     }
 }
