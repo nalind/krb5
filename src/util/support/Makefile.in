@@ -72,6 +72,7 @@ STLIBOBJS= \
 	base64.o \
 	json.o \
 	bcmp.o \
+	punycode.o \
 	$(GETTIMEOFDAY_ST_OBJ) \
 	$(IPC_ST_OBJ) \
 	$(STRLCPY_ST_OBJ) \
@@ -94,6 +95,7 @@ LIBOBJS= \
 	$(OUTPRE)base64.$(OBJEXT) \
 	$(OUTPRE)json.$(OBJEXT) \
 	$(OUTPRE)bcmp.$(OBJEXT) \
+	$(OUTPRE)punycode.$(OBJEXT) \
 	$(GETTIMEOFDAY_OBJ) \
 	$(IPC_OBJ) \
 	$(STRLCPY_OBJ) \
@@ -124,7 +126,8 @@ SRCS=\
 	$(srcdir)/path.c \
 	$(srcdir)/base64.c \
 	$(srcdir)/json.c \
-	$(srcdir)/bcmp.c
+	$(srcdir)/bcmp.c \
+	$(srcdir)/punycode.c
 
 SHLIB_EXPDEPS =
 # Add -lm if dumping thread stats, for sqrt.
@@ -196,7 +199,10 @@ t_json: $(T_JSON_OBJS)
 t_unal: t_unal.o
 	$(CC_LINK) -o t_unal t_unal.o
 
-TEST_PROGS= t_k5buf t_path t_path_win t_base64 t_json t_unal
+t_punycode: t_punycode.o punycode.o utf8.o k5buf.o
+	$(CC_LINK) -o $@ t_punycode.o punycode.o utf8.o k5buf.o
+
+TEST_PROGS= t_k5buf t_path t_path_win t_base64 t_json t_unal t_punycode
 
 check-unix:: $(TEST_PROGS)
 	./t_k5buf
@@ -205,11 +211,12 @@ check-unix:: $(TEST_PROGS)
 	./t_base64
 	./t_json
 	./t_unal
+	./t_punycode
 
 clean::
 	$(RM) t_k5buf.o t_k5buf t_unal.o t_unal path_win.o path_win
 	$(RM) t_path_win.o t_path_win t_path.o t_path t_base64.o t_base64
-	$(RM) t_json.o t_json libkrb5support.exports
+	$(RM) t_json.o t_json libkrb5support.exports punycode.o t_punycode.o
 
 @lib_frag@
 @libobj_frag@

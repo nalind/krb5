@@ -82,3 +82,5 @@ krb5int_utf8_lentab
 krb5int_utf8_mintab
 krb5int_utf8_next
 krb5int_zap
+k5int_ucs4_to_punycode
+k5int_utf8_to_punycode
