@@ -472,7 +472,7 @@ terminate_workers(pid_t *pids, int bound)
  * function in error cases.
  */
 static krb5_error_code
-create_workers(verto_ctx *ctx, int num)
+create_workers(verto_ctx *ctx, krb5_context kcontext, int num)
 {
     krb5_error_code retval;
     int i, status;
@@ -568,6 +568,8 @@ create_workers(verto_ctx *ctx, int num)
                 if (pids[i] != -1)
                     kill(pids[i], SIGHUP);
             }
+            krb5_klog_syslog(LOG_DEBUG, _("Got signal to reset"));
+            krb5_klog_reopen(kcontext);
         }
     }
     if (signal_received)
@@ -1040,7 +1042,7 @@ int main(int argc, char **argv)
     }
     if (workers > 0) {
         finish_realms();
-        retval = create_workers(ctx, workers);
+        retval = create_workers(ctx, kcontext, workers);
         if (retval) {
             kdc_err(kcontext, errno, _("creating worker processes"));
             return 1;
